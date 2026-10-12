@@ -88,3 +88,5 @@ const title = inputField.value.trim();
 
 });
 
+renderTickets(); // Initial render on page load
+

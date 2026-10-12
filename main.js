@@ -2,12 +2,18 @@ const submitButton = document.getElementById('submitButton');
 const inputField = document.getElementById('inputField');
 const outputDiv = document.getElementById('output');
 const ticketFilter = document.getElementById('ticketFilter');
-let ticketList = [];
+let ticketList = JSON.parse(localStorage.getItem('tickets')) || [];
 
 
 ticketFilter.addEventListener('change', function () {
     renderTickets();
 });
+
+function saveTickets() {
+    localStorage.setItem('tickets', JSON.stringify(ticketList));
+}
+
+
 function renderTickets() {
     outputDiv.textContent = ''; // Clear previous output
     const listHere = ticketList.filter(ticket => {
@@ -29,6 +35,7 @@ function renderTickets() {
             closeBtn.addEventListener('click', function () {
                 ticket.status = "closed";
                 renderTickets();
+                saveTickets();
             })
         }
 
@@ -42,6 +49,7 @@ function renderTickets() {
             deleteBtn.addEventListener('click', function () {
                 ticketList = ticketList.filter(t => t.id !== ticket.id);
                 renderTickets();
+                saveTickets();
             })              
             
 
@@ -76,6 +84,7 @@ const title = inputField.value.trim();
 
 
     renderTickets();
+    saveTickets();
 
 });
 

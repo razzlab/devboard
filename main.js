@@ -7,8 +7,31 @@ const totalTicketsDiv = document.getElementById("totalTickets");
 const openTicketsDiv = document.getElementById("openTickets");
 const closedTicketsDiv = document.getElementById("closedTickets");
 const sortOrder = document.getElementById("sortOrder");
-let lastDeletedTickets = []; // Variable to store the last deleted ticket for undo functionality
 const undoButton = document.getElementById("undoButton");
+const lastDeletedTicketsOnStorage = () => {
+  try {
+    const data = localStorage.getItem("lastDeletedTickets");
+    if (!data) return [];
+
+    const parsed = JSON.parse(data);
+
+    // Ensure it is an array, then filter for the exact object structure
+    if (!Array.isArray(parsed)) return [];
+
+    return parsed.filter(
+      (ticket) =>
+        ticket &&
+        typeof ticket.id === "number" &&
+        Number.isFinite(ticket.id) &&
+        typeof ticket.title === "string" &&
+        (ticket.status === "open" || ticket.status === "closed"),
+    );
+  } catch (e) {
+    console.error("Error parsing tickets from localStorage:", e);
+    return [];
+  }
+};
+let lastDeletedTickets = lastDeletedTicketsOnStorage(); // Variable to store the last deleted ticket for undo functionality
 
 const ticketListOnStorage = () => {
   try {
@@ -42,6 +65,13 @@ ticketFilter.addEventListener("change", function () {
 
 function saveTickets() {
   localStorage.setItem("tickets", JSON.stringify(ticketList));
+}
+
+function saveLastDeletedTickets() {
+  localStorage.setItem(
+    "lastDeletedTickets",
+    JSON.stringify(lastDeletedTickets),
+  );
 }
 
 function renderTickets() {
@@ -111,6 +141,7 @@ function renderTickets() {
       ticketList = ticketList.filter((t) => t.id !== ticket.id);
 
       saveTickets();
+      saveLastDeletedTickets();
       renderTickets();
     });
 
@@ -176,9 +207,11 @@ sortOrder.addEventListener("change", function () {
 });
 
 undoButton.addEventListener("click", function () {
-  undoButton.disabled = true; // Disable the undo button after undoing
-  ticketList.push(lastDeletedTickets[lastDeletedTickets.length - 1]); // Restore the last deleted ticket
-  lastDeletedTickets.pop(); // Remove the last deleted ticket from the array
+  if (lastDeletedTickets.length > 0) {
+    ticketList.push(lastDeletedTickets[lastDeletedTickets.length - 1]); // Restore the last deleted ticket
+    lastDeletedTickets.pop(); // Remove the last deleted ticket from the array
+  }
+  saveLastDeletedTickets(); // Save the updated lastDeletedTickets to localStorage
   saveTickets();
   renderTickets();
 });

@@ -8,7 +8,7 @@ const openTicketsDiv = document.getElementById("openTickets");
 const closedTicketsDiv = document.getElementById("closedTickets");
 const sortOrder = document.getElementById("sortOrder");
 const undoButton = document.getElementById("undoButton");
-const lastDeletedTicketsOnStorage = () => {
+const loadLastDeletedTickets = () => {
   try {
     const data = localStorage.getItem("lastDeletedTickets");
     if (!data) return [];
@@ -31,7 +31,7 @@ const lastDeletedTicketsOnStorage = () => {
     return [];
   }
 };
-let lastDeletedTickets = lastDeletedTicketsOnStorage(); // Variable to store the last deleted ticket for undo functionality
+let lastDeletedTickets = loadLastDeletedTickets(); // Variable to store the last deleted ticket for undo functionality
 
 const ticketListOnStorage = () => {
   try {

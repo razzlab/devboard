@@ -7,7 +7,7 @@ const totalTicketsDiv = document.getElementById("totalTickets");
 const openTicketsDiv = document.getElementById("openTickets");
 const closedTicketsDiv = document.getElementById("closedTickets");
 const sortOrder = document.getElementById("sortOrder");
-let lastDeletedTicket = null; // Variable to store the last deleted ticket for undo functionality
+let lastDeletedTickets = []; // Variable to store the last deleted ticket for undo functionality
 const undoButton = document.getElementById("undoButton");
 
 const ticketListOnStorage = () => {
@@ -45,6 +45,7 @@ function saveTickets() {
 }
 
 function renderTickets() {
+  undoButton.disabled = !lastDeletedTickets.length;
   const totalTickets = ticketList.length;
   const openTickets = ticketList.filter(
     (ticket) => ticket.status === "open",
@@ -106,7 +107,7 @@ function renderTickets() {
     deleteBtn.textContent = "delete";
     li.appendChild(deleteBtn);
     deleteBtn.addEventListener("click", function () {
-      lastDeletedTicket = ticketList.find((t) => t.id === ticket.id); // Store the deleted ticket for undo
+      lastDeletedTickets.push(ticketList.find((t) => t.id === ticket.id)); // Store the deleted ticket for undo
       ticketList = ticketList.filter((t) => t.id !== ticket.id);
 
       saveTickets();
@@ -141,9 +142,6 @@ function renderTickets() {
     });
 
     outputDiv.appendChild(li);
-    // console.log("Ticket List:", ticketList); // Log the current state of ticketList
-    // console.log("Rendered Ticket:", ticket); // Log the ticket being rendered
-    // console.log(listHere); // Log the filtered and sorted list of tickets
   });
 }
 
@@ -178,14 +176,11 @@ sortOrder.addEventListener("change", function () {
 });
 
 undoButton.addEventListener("click", function () {
-  if (lastDeletedTicket) {
-    ticketList.push(lastDeletedTicket);
-    lastDeletedTicket = null; // Clear the last deleted ticket after undo
-    saveTickets();
-    renderTickets();
-  } else {
-    alert("No ticket to undo.");
-  }
+  undoButton.disabled = true; // Disable the undo button after undoing
+  ticketList.push(lastDeletedTickets[lastDeletedTickets.length - 1]); // Restore the last deleted ticket
+  lastDeletedTickets.pop(); // Remove the last deleted ticket from the array
+  saveTickets();
+  renderTickets();
 });
 
 renderTickets(); // Initial render on page load

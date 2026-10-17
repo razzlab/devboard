@@ -1,20 +1,22 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="./main.js" defer></script>  
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="./main.js" defer></script>
     <title>DevBoard</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-<h1>Welcome to DevBoard</h1>
-<select id="ticketFilter">
-    <option value="all">All</option>
-    <option value="open">Open</option>
-    <option value="closed">Closed</option>
-</select>
-<input type="text" id="inputField" placeholder="Type Ticket..."> <button id="submitButton">Submit</button>
-<div id="output"></div>  
-</body>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <h1>Welcome to DevBoard</h1>
+    <select id="ticketFilter">
+      <option value="all">All</option>
+      <option value="open">Open</option>
+      <option value="closed">Closed</option>
+    </select>
+    <input type="text" id="inputField" placeholder="Type Ticket..." />
+    <button id="submitButton">Submit</button>
+    <input type="text" id="searchInput" placeholder="Search tickets..." />
+    <div id="output"></div>
+  </body>
 </html>

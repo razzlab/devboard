@@ -6,7 +6,33 @@ const searchInput = document.getElementById("searchInput");
 const totalTicketsDiv = document.getElementById("totalTickets");
 const openTicketsDiv = document.getElementById("openTickets");
 const closedTicketsDiv = document.getElementById("closedTickets");
-let ticketList = JSON.parse(localStorage.getItem("tickets")) || [];
+const sortOrder = document.getElementById("sortOrder");
+
+const ticketListOnStorage = () => {
+  try {
+    const data = localStorage.getItem("tickets");
+    if (!data) return [];
+
+    const parsed = JSON.parse(data);
+
+    // Ensure it is an array, then filter for the exact object structure
+    if (!Array.isArray(parsed)) return [];
+
+    return parsed.filter(
+      (ticket) =>
+        ticket &&
+        typeof ticket.id === "number" &&
+        Number.isFinite(ticket.id) &&
+        typeof ticket.title === "string" &&
+        (ticket.status === "open" || ticket.status === "closed"),
+    );
+  } catch (e) {
+    console.error("Error parsing tickets from localStorage:", e);
+    return [];
+  }
+};
+
+let ticketList = ticketListOnStorage(); // Get the current state of ticketList
 
 ticketFilter.addEventListener("change", function () {
   renderTickets();
@@ -29,22 +55,25 @@ function renderTickets() {
   closedTicketsDiv.textContent = `Closed Tickets: ${closedTickets}`;
   outputDiv.textContent = ""; // Clear previous output
   const searchValue = searchInput.value.trim().toLowerCase();
+
   const listHere = ticketList.filter((ticket) => {
-    // 1. Normalize your search input to lowercase for case-insensitive matching
-    const searchLower = searchValue.toLowerCase().trim();
-
-    // 2. Determine if the ticket matches the text search (if search is empty, default to true)
+    // 1. Determine if the ticket matches the text search (if search is empty, default to true)
     const matchesSearch =
-      searchLower === "" || ticket.title.toLowerCase().includes(searchLower);
+      searchValue === "" || ticket.title.toLowerCase().includes(searchValue);
 
-    // 3. Determine if the ticket matches the dropdown/status filter
+    // 2. Determine if the ticket matches the dropdown/status filter
     const matchesFilter =
       ticketFilter.value === "all" || ticket.status === ticketFilter.value;
 
-    // 4. Return true only if it satisfies both criteria
+    // 3. Return true only if it satisfies both criteria
     return matchesSearch && matchesFilter;
   });
 
+  if (sortOrder.value === "asc") {
+    listHere.sort((a, b) => a.title.localeCompare(b.title));
+  } else if (sortOrder.value === "desc") {
+    listHere.sort((a, b) => b.title.localeCompare(a.title));
+  }
   listHere.forEach((ticket) => {
     const li = document.createElement("li");
     if (ticket.status === "closed") {
@@ -99,6 +128,9 @@ function renderTickets() {
     });
 
     outputDiv.appendChild(li);
+    // console.log("Ticket List:", ticketList); // Log the current state of ticketList
+    // console.log("Rendered Ticket:", ticket); // Log the ticket being rendered
+    // console.log(listHere); // Log the filtered and sorted list of tickets
   });
 }
 
@@ -125,6 +157,10 @@ submitButton.addEventListener("click", function () {
 });
 
 searchInput.addEventListener("keyup", function () {
+  renderTickets();
+});
+
+sortOrder.addEventListener("change", function () {
   renderTickets();
 });
 

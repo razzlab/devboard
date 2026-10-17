@@ -3,6 +3,9 @@ const inputField = document.getElementById("inputField");
 const outputDiv = document.getElementById("output");
 const ticketFilter = document.getElementById("ticketFilter");
 const searchInput = document.getElementById("searchInput");
+const totalTicketsDiv = document.getElementById("totalTickets");
+const openTicketsDiv = document.getElementById("openTickets");
+const closedTicketsDiv = document.getElementById("closedTickets");
 let ticketList = JSON.parse(localStorage.getItem("tickets")) || [];
 
 ticketFilter.addEventListener("change", function () {
@@ -14,6 +17,16 @@ function saveTickets() {
 }
 
 function renderTickets() {
+  const totalTickets = ticketList.length;
+  const openTickets = ticketList.filter(
+    (ticket) => ticket.status === "open",
+  ).length;
+  const closedTickets = ticketList.filter(
+    (ticket) => ticket.status === "closed",
+  ).length;
+  totalTicketsDiv.textContent = `Total Tickets: ${totalTickets}`;
+  openTicketsDiv.textContent = `Open Tickets: ${openTickets}`;
+  closedTicketsDiv.textContent = `Closed Tickets: ${closedTickets}`;
   outputDiv.textContent = ""; // Clear previous output
   const searchValue = searchInput.value.trim().toLowerCase();
   const listHere = ticketList.filter((ticket) => {
@@ -105,7 +118,9 @@ submitButton.addEventListener("click", function () {
     ticketList.push({ id: Date.now(), title: title, status: "open" });
     inputField.value = "";
   }
+
   saveTickets();
+
   renderTickets();
 });
 

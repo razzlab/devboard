@@ -7,6 +7,8 @@ const totalTicketsDiv = document.getElementById("totalTickets");
 const openTicketsDiv = document.getElementById("openTickets");
 const closedTicketsDiv = document.getElementById("closedTickets");
 const sortOrder = document.getElementById("sortOrder");
+let lastDeletedTicket = null; // Variable to store the last deleted ticket for undo functionality
+const undoButton = document.getElementById("undoButton");
 
 const ticketListOnStorage = () => {
   try {
@@ -79,6 +81,15 @@ function renderTickets() {
     if (ticket.status === "closed") {
       li.textContent = ticket.title + " - Closed";
       li.style.textDecoration = "line-through";
+
+      const reopenBtn = document.createElement("button");
+      reopenBtn.textContent = "reopen";
+      li.appendChild(reopenBtn);
+      reopenBtn.addEventListener("click", function () {
+        ticket.status = "open";
+        saveTickets();
+        renderTickets();
+      });
     } else {
       li.textContent = ticket.title;
       const closeBtn = document.createElement("button");
@@ -95,7 +106,9 @@ function renderTickets() {
     deleteBtn.textContent = "delete";
     li.appendChild(deleteBtn);
     deleteBtn.addEventListener("click", function () {
+      lastDeletedTicket = ticketList.find((t) => t.id === ticket.id); // Store the deleted ticket for undo
       ticketList = ticketList.filter((t) => t.id !== ticket.id);
+
       saveTickets();
       renderTickets();
     });
@@ -162,6 +175,17 @@ searchInput.addEventListener("keyup", function () {
 
 sortOrder.addEventListener("change", function () {
   renderTickets();
+});
+
+undoButton.addEventListener("click", function () {
+  if (lastDeletedTicket) {
+    ticketList.push(lastDeletedTicket);
+    lastDeletedTicket = null; // Clear the last deleted ticket after undo
+    saveTickets();
+    renderTickets();
+  } else {
+    alert("No ticket to undo.");
+  }
 });
 
 renderTickets(); // Initial render on page load
